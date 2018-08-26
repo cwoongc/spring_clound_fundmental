@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: display
+  cloud:
+    loadbalancer:
+      retry: #org.springframework.retry:spring-retry # Ribbon Retry
+        enabled: true
+
+server:
+  port: 8081
+
+#https://github.com/Netflix/Hystrix/wiki/Configuration
+hystrix:
+  command:
+#    default: #HystrinxCommandKey의 Default Property. HystrixCommandKey를 기입하여 Key(commandKey)별 설정(Dynamic Instance Property)이 가능하다.
+    productInfo:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000 # HystrixCommand의 timeout을 caller가 observe 하며 callback을 기다려주는 시간(밀리세컨). 디폴트 1000.
+      circuitBreaker:
+        requestVolumeThreshold: 1 # 요청크기임계. circuit open 필수조건 2가지중 하나. 디폴트 20. 한 Rolling window(10초)내 들어오는 call 수가 본 설정을 넘어서면 조건만족
+        errorThresholdPercentage: 50 # 에러임계비율. circuit open 필수조건 2가지중 하나. 디폴트 20(%). 한 Rolling window에 들어온 call중 에러비율이 본 비율을 넘어서면 조건만족
+        sleepWindowInMilliseconds: 5000 #슬립윈도우밀리초. circuit open되고 나서 호출 차단(circuit open)되는 시간. 이시간이 경과하면 circuit은 단 1개의 호출허용(half-open)상태가 되며 이 호출이 성공하면 circuit은 close상태가 되고 호출이 재게되고, 실패하면 다시 open상태가 이시간만큼 지속된다.
+
+product:
+  ribbon:
+    eureka:
+      enabled: false
+    listOfServers: localhost:8082,localhost:7777
+    MaxAutoRetries: 0 # default 0
+    MaxAutoRetriesNextServer: 1 # default 1
